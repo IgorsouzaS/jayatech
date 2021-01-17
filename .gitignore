@@ -1,0 +1,13 @@
+# Intellij Files
+.idea/
+
+# Gradle files
+.gradle/
+build/
+
+# Build files
+!**/src/**/build
+!**/test/**/build
+
+# Log Files
+*.log
