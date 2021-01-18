@@ -2,6 +2,7 @@ package web.controller
 
 import io.javalin.http.BadRequestResponse
 import io.javalin.http.Context
+import io.javalin.plugin.openapi.annotations.*
 import model.User
 import model.UserRequest
 import org.slf4j.Logger
@@ -13,6 +14,19 @@ class UserController(private val userRepository: UserRepository){
         val logger: Logger = LoggerFactory.getLogger(UserController::class.java)
     }
 
+    private val notFound : String = "User not found"
+
+    @OpenApi(
+        summary = "Create user",
+        operationId = "createUser",
+        tags = ["User"],
+        requestBody = OpenApiRequestBody([OpenApiContent(UserRequest::class)]),
+        responses = [
+            OpenApiResponse("200", [OpenApiContent(User::class)]),
+            OpenApiResponse("400", [OpenApiContent(BadRequestResponse::class)]),
+        ],
+        method = HttpMethod.POST
+    )
     fun create(ctx: Context){
         try {
             val userReq : UserRequest = ctx.bodyAsClass(UserRequest::class.java)
@@ -28,6 +42,17 @@ class UserController(private val userRepository: UserRepository){
         }
     }
 
+    @OpenApi(
+        summary = "Update a user",
+        operationId = "updateUser",
+        tags = ["User"],
+        requestBody = OpenApiRequestBody([OpenApiContent(UserRequest::class)]),
+        responses = [
+            OpenApiResponse("200", [OpenApiContent(User::class)]),
+            OpenApiResponse("400", [OpenApiContent(BadRequestResponse::class)])
+        ],
+        method = HttpMethod.PUT
+    )
     fun update(ctx: Context){
         try {
             val id = ctx.pathParam("id").toLong()
@@ -43,6 +68,16 @@ class UserController(private val userRepository: UserRepository){
         }
     }
 
+    @OpenApi(
+        summary = "Get a user by id",
+        operationId = "getAUser",
+        tags = ["User"],
+        responses = [
+            OpenApiResponse("200", [OpenApiContent(User::class)]),
+            OpenApiResponse("400", [OpenApiContent(BadRequestResponse::class)])
+        ],
+        method = HttpMethod.GET
+    )
     fun getOne(ctx: Context) {
         try {
             ctx.json(userRepository.getOne(ctx.pathParam("id").toLong()))
@@ -50,11 +85,21 @@ class UserController(private val userRepository: UserRepository){
         } catch (ex: BadRequestResponse) {
             logger.error(ex.toString())
             throw BadRequestResponse(
-                message = "User not found"
+                message = notFound
             )
         }
     }
 
+    @OpenApi(
+        summary = "Get all users",
+        operationId = "getAllUsers",
+        tags = ["User"],
+        responses = [
+            OpenApiResponse("200", [OpenApiContent(Array<User>::class)]),
+            OpenApiResponse("400", [OpenApiContent(BadRequestResponse::class)])
+        ],
+        method = HttpMethod.GET
+    )
     fun getAll(ctx : Context) {
         try {
             ctx.json(userRepository.getAll())
@@ -67,6 +112,16 @@ class UserController(private val userRepository: UserRepository){
         }
     }
 
+    @OpenApi(
+        summary = "Get all user transactions",
+        operationId = "getAllUserTransactions",
+        tags = ["User"],
+        responses = [
+            OpenApiResponse("200", [OpenApiContent(Array<model.Transaction>::class)]),
+            OpenApiResponse("400", [OpenApiContent(BadRequestResponse::class)])
+        ],
+        method = HttpMethod.GET
+    )
     fun getUserTransactions(ctx : Context){
         try {
             ctx.json(userRepository.getUserTransactions(ctx.pathParam("id").toLong()))
@@ -74,11 +129,21 @@ class UserController(private val userRepository: UserRepository){
         } catch (ex: BadRequestResponse) {
             logger.error(ex.toString())
             throw BadRequestResponse(
-                message = "User not found"
+                message = notFound
             )
         }
     }
 
+    @OpenApi(
+        summary = "Delete a user",
+        operationId = "deleteUser",
+        tags = ["User"],
+        responses = [
+            OpenApiResponse("200"),
+            OpenApiResponse("400", [OpenApiContent(BadRequestResponse::class)])
+        ],
+        method = HttpMethod.DELETE
+    )
     fun delete(ctx: Context) {
         try {
             userRepository.delete(ctx.pathParam("id").toLong())
@@ -87,7 +152,7 @@ class UserController(private val userRepository: UserRepository){
         } catch (ex: BadRequestResponse) {
             logger.error(ex.toString())
             throw BadRequestResponse(
-                message = "User not found"
+                message = notFound
             )
         }
     }

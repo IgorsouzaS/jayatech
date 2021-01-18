@@ -2,8 +2,10 @@ package web.controller
 
 import io.javalin.http.BadRequestResponse
 import io.javalin.http.Context
+import io.javalin.plugin.openapi.annotations.*
 import model.Error
 import model.ExchangeRatesApiResponse
+import model.Transaction
 import model.TransactionRequest
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -22,6 +24,17 @@ class TransactionController(private val transactionRepository: TransactionReposi
 
     private val invalidTransaction : String = "Invalid transaction"
 
+    @OpenApi(
+        summary = "Create transaction",
+        operationId = "createTransaction",
+        tags = ["Transaction"],
+        requestBody = OpenApiRequestBody([OpenApiContent(TransactionRequest::class)]),
+        responses = [
+            OpenApiResponse("200", [OpenApiContent(Transaction::class)]),
+            OpenApiResponse("400", [OpenApiContent(InvalidTransaction::class)])
+        ],
+        method = HttpMethod.POST
+    )
     fun create(ctx: Context) {
         try {
             val transactionRequest = ctx.bodyAsClass(TransactionRequest::class.java)
@@ -49,7 +62,7 @@ class TransactionController(private val transactionRepository: TransactionReposi
 
             val rate = data.rates[transactionRequest.destinationCurrency]!!
             val destinationAmt = rate * transactionRequest.originAmount
-            val transaction = model.Transaction(transactionRequest.userId,0,
+            val transaction = Transaction(transactionRequest.userId,0,
                 transactionRequest.originCurrency,
                 transactionRequest.originAmount,
                 transactionRequest.destinationCurrency,
@@ -67,6 +80,15 @@ class TransactionController(private val transactionRepository: TransactionReposi
         }
     }
 
+    @OpenApi(
+        summary = "Get a transaction by id",
+        operationId = "getATransaction",
+        tags = ["Transaction"],
+        responses = [
+            OpenApiResponse("200", [OpenApiContent(Transaction::class)]),
+            OpenApiResponse("400", [OpenApiContent(InvalidTransaction::class)])],
+        method = HttpMethod.GET
+    )
     fun getOne(ctx: Context){
         try {
             ctx.json(transactionRepository.getOne(ctx.pathParam("id").toLong()))
@@ -80,6 +102,16 @@ class TransactionController(private val transactionRepository: TransactionReposi
         }
     }
 
+    @OpenApi(
+        summary = "Get all transactions",
+        operationId = "getAllTransactions",
+        tags = ["Transaction"],
+        responses = [
+            OpenApiResponse("200", [OpenApiContent(Array<Transaction>::class)]),
+            OpenApiResponse("400", [OpenApiContent(InvalidTransaction::class)])
+        ],
+        method = HttpMethod.GET
+    )
     fun getAll(ctx: Context){
         try {
             ctx.json(transactionRepository.getAll())
@@ -92,6 +124,16 @@ class TransactionController(private val transactionRepository: TransactionReposi
         }
     }
 
+    @OpenApi(
+        summary = "Delete a transaction",
+        operationId = "deleteTransaction",
+        tags = ["Transaction"],
+        responses = [
+            OpenApiResponse("200"),
+            OpenApiResponse("400", [OpenApiContent(InvalidTransaction::class)])
+        ],
+        method = HttpMethod.DELETE
+    )
     fun delete(ctx: Context) {
         try {
             transactionRepository.delete(ctx.pathParam("id").toLong())
