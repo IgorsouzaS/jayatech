@@ -205,7 +205,6 @@ Ktlint was used as a task executor for the same purpose but it can be run withou
 
 This project is using a CI pipeline of Heroku, which means that the changes on master branch of this repository
 will start a process of testing and deploying of a new project version.
-[Imagem do pipeline]
 
 
 
