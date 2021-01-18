@@ -46,7 +46,7 @@ This project provides currency and exchange rates by converting some currencies,
 <br/><br/>
 
 
-<h2 id="technologies">Requirements for running the project</h2>
+<h2 id="technologies">Technologies</h2>
 <h4>The following technologies were used in this project:</h4>
 
   * [Kotlin](https://kotlinlang.org/)
