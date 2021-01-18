@@ -1,6 +1,7 @@
 package repository
 
 import config.DbConfig
+import io.javalin.http.BadRequestResponse
 import model.Transaction
 import org.h2.jdbcx.JdbcDataSource
 import org.jetbrains.exposed.dao.LongIdTable
@@ -18,8 +19,8 @@ object Transactions : LongIdTable("TRANSACTIONS") {
     val rate: Column<Float> = float("rate")
     private val createdAt: Column<LocalDateTime> = datetime("createdAt").defaultExpression(CurrentDateTime())
 
-    fun toDomain(row: ResultRow): model.Transaction {
-        return model.Transaction(
+    fun toDomain(row: ResultRow): Transaction {
+        return Transaction(
             id = row[id].value,
             userId = row[userId],
             originCurrency = row[originCurrency],
@@ -32,7 +33,7 @@ object Transactions : LongIdTable("TRANSACTIONS") {
     }
 }
 
-class TransactionRepository(db: DbConfig) : Repository<model.Transaction>{
+class TransactionRepository(db: DbConfig) : Repository<Transaction>{
 
     private var dataSource: JdbcDataSource = db.getDataSource()
 
@@ -44,19 +45,55 @@ class TransactionRepository(db: DbConfig) : Repository<model.Transaction>{
 
     private val logger = LoggerFactory.getLogger(TransactionRepository::class.java)
 
+
     override fun create(entity: Transaction): Transaction {
-        TODO("Not yet implemented")
+
+        val exists: Boolean = transaction(Database.connect(dataSource)) {
+            Users.select { Users.id eq entity.userId }.count() > 0
+        }
+
+        takeIf { !exists }?.apply {
+            logger.error("User not found")
+            throw BadRequestResponse(message = "User not found")
+        }
+
+        val transactionId: Long = transaction {
+            Transactions.insertAndGetId { row ->
+                row[originCurrency] = entity.originCurrency
+                row[destinationCurrency] = entity.destinationCurrency
+                row[originAmount] = entity.originAmount
+                row[destinyAmount] = entity.destinationAmount
+                row[rate] = entity.rate
+                row[userId] = entity.userId
+            }.value
+        }
+        logger.info("Save transaction with success")
+        return getOne(transactionId)
     }
 
     override fun getAll(): List<Transaction> {
-        TODO("Not yet implemented")
+        logger.info("Transactions list returned")
+        return transaction {
+            Transactions.selectAll().map {
+                Transactions.toDomain(it)
+            }.toList()
+        }
     }
 
     override fun getOne(id: Long): Transaction {
-        TODO("Not yet implemented")
+        logger.info("Transaction data returned")
+        return transaction(Database.connect(dataSource)) {
+            Transactions.select { Transactions.id eq id }
+                .map { Transactions.toDomain(it) }
+                .firstOrNull()
+        }!!
     }
 
-    override fun delete(id: Long): Int {
-        TODO("Not yet implemented")
+    override fun delete(id: Long) : Int {
+        logger.info("Transaction successfully deleted")
+        return transaction(Database.connect(dataSource)) {
+            Transactions.deleteWhere { Transactions.id eq id }
+        }
     }
+
 }

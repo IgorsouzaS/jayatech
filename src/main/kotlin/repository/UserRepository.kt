@@ -1,13 +1,11 @@
 package repository
 
 import config.DbConfig
+import io.javalin.http.BadRequestResponse
 import model.User
 import org.h2.jdbcx.JdbcDataSource
 import org.jetbrains.exposed.dao.LongIdTable
-import org.jetbrains.exposed.sql.Column
-import org.jetbrains.exposed.sql.Database
-import org.jetbrains.exposed.sql.ResultRow
-import org.jetbrains.exposed.sql.SchemaUtils
+import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.slf4j.LoggerFactory
 
@@ -36,27 +34,72 @@ class UserRepository(db: DbConfig) : Repository<User> {
 
     private val logger = LoggerFactory.getLogger(UserRepository::class.java)
 
+
     override fun create(entity: User): User {
-        TODO("Not yet implemented")
+        val userExists: Boolean = transaction(Database.connect(dataSource)) {
+            Users.select {
+                Users.email eq entity.email
+            }.toList().isNotEmpty()
+        }
+
+        if(userExists){
+            logger.error("This email is already being used")
+            throw BadRequestResponse(message = "This email is already being used")
+        }
+
+        val userId: Long = transaction(Database.connect(dataSource)) {
+            Users.insertAndGetId { row ->
+                row[email] = entity.email
+                row[name] = entity.name
+            }.value
+        }
+        logger.info("User created success")
+        return getOne(userId)
     }
 
     override fun getAll(): List<User> {
-        TODO("Not yet implemented")
+        logger.info("Users list returned")
+        return transaction {
+            Users.selectAll().map {
+                Users.toDomain(it)
+            }.toList()
+        }
+    }
+
+    fun getUserTransactions(userId: Long): List<model.Transaction> {
+        logger.info("User transactions list returned")
+        return transaction {
+            Transactions.select { Transactions.userId eq userId }.map {
+                Transactions.toDomain(it)
+            }.toList()
+        }
     }
 
     override fun getOne(id: Long): User {
-        TODO("Not yet implemented")
+        logger.info("User data returned")
+        return transaction(Database.connect(dataSource)) {
+            Users.select { Users.id eq id }
+                .map { Users.toDomain(it) }
+                .firstOrNull()
+        }!!
     }
 
-    override fun delete(id: Long): Int {
-        TODO("Not yet implemented")
+    fun update(userId: Long, entity: User): User {
+        transaction(Database.connect(dataSource)) {
+            Users.update({ Users.id eq userId }) { row ->
+                row[email] = entity.email
+                row[name] = entity.name
+            }
+        }
+        logger.info("User updated successfully")
+        return getOne(userId)
     }
 
-    fun update(userId : Long, entity: User): User{
-        TODO()
+    override fun delete(id: Long) : Int{
+        logger.info("user successfully deleted")
+        return transaction(Database.connect(dataSource)) {
+            Users.deleteWhere { Users.id eq id }
+        }
     }
 
-    fun getUserTransactions(userId: Long): List<model.Transaction>{
-        TODO()
-    }
 }
