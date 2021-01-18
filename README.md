@@ -2,10 +2,10 @@
 
 
 [![Github branch checks state](https://img.shields.io/github/checks-status/IgorSouzaS/jayatech/master.svg)](     )
-[![Swagger](https://img.shields.io/badge/swagger-valid-brightgreen.svg)](        )
+[![Swagger](https://img.shields.io/badge/swagger-valid-brightgreen.svg)](https://jayatech-test.heroku.com/swagger-ui)
 [![Github Last commit](https://img.shields.io/github/last-commit/IgorsouzaS/jayatech.svg)](         )
 [![Language](https://img.shields.io/github/languages/top/IgorsouzaS/jayatech.svg)](        )
-[![Heroku](https://img.shields.io/badge/%E2%86%91_Deploy_to-Heroku-7056bf.svg)](        )
+[![Heroku](https://img.shields.io/badge/%E2%86%91_Deploy_to-Heroku-7056bf.svg)](https://jayatech-test.heroku.com/users)
 
 
 **Index**
@@ -211,4 +211,4 @@ will start a process of testing and deploying of a new project version.
 
 <br/><br/>
 
-#### <div align="center"> Use it on [here](             ) <img src="https://imagepng.org/wp-content/uploads/2017/10/coracao.png" height="10px" width="10px"></div>
+#### <div align="center"> Use it on [here](https://jayatech-test.heroku.com/users) <img src="https://imagepng.org/wp-content/uploads/2017/10/coracao.png" height="10px" width="10px"></div>
