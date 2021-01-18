@@ -5,8 +5,9 @@ import io.javalin.apibuilder.ApiBuilder.*
 import org.koin.core.component.KoinComponent
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import web.controller.UserController
 
-class UserRouter : KoinComponent {
+class UserRouter(private val controller: UserController) : KoinComponent {
 
     private companion object {
         val logger: Logger = LoggerFactory.getLogger(UserRouter::class.java)
@@ -18,7 +19,16 @@ class UserRouter : KoinComponent {
             before { ctx -> logger.info(ctx.req.method + " " + ctx.req.requestURL.toString()) }
 
             path("users") {
-
+                get(controller::getAll)
+                post(controller::create)
+                path(":id") {
+                    get(controller::getOne)
+                    put(controller::update)
+                    delete(controller::delete)
+                    path("transactions") {
+                        get(controller::getUserTransactions)
+                    }
+                }
             }
 
             after { ctx -> logger.info(ctx.res.status.toString()) }
