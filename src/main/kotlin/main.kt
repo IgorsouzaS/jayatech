@@ -1,3 +1,5 @@
+import config.AppConfig
+
 fun main(args: Array<String>) {
-    println("Hello World!")
+    AppConfig().startApplication()
 }
