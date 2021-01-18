@@ -19,38 +19,38 @@ import kotlin.test.assertTrue
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 class UserTest : KoinTest {
 
-    private val userRepository : UserRepository by KoinJavaComponent.inject(UserRepository::class.java)
-    private var user = User(1, "test", "test")
+    private val userRepository: UserRepository by KoinJavaComponent.inject(UserRepository::class.java)
+    private var user = User(1, "userTest", "userTest")
 
     @Before
-    fun before (){
-        startKoin{
+    fun before() {
+        startKoin {
             modules(ModulesConfig.modules)
         }
     }
 
     @After
-    fun after(){
+    fun after() {
         stopKoin()
     }
 
     @Test
     fun `a - should save user`() {
-        val createdUser : User = userRepository.create(user)
+        val createdUser: User = userRepository.create(user)
         assertNotNull(createdUser)
     }
 
     @Test
     fun `b - should return users list`() {
-        val userList : List<User> = userRepository.getAll()
+        val userList: List<User> = userRepository.getAll()
         assertTrue(userList.isNotEmpty())
     }
 
     @Test
     fun `c - should return user with different name`() {
-        val newName : String = user.name+"test"
+        val newName: String = user.name + "test"
         val newUser = user.copy(name = newName)
-        val createdUser : User = userRepository.update(user.id, newUser)
+        val createdUser: User = userRepository.update(user.id, newUser)
 
         assertNotNull(createdUser)
         assertEquals(newName, createdUser.name)
@@ -58,9 +58,8 @@ class UserTest : KoinTest {
 
     @Test
     fun `d - should not return any user`() {
-        val result : Int = userRepository.delete(user.id)
+        val result: Int = userRepository.delete(user.id)
         print(result)
-        assertEquals(1,result)
+        assertEquals(1, result)
     }
-
 }

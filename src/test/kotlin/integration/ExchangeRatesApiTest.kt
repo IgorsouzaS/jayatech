@@ -19,7 +19,7 @@ class ExchangeRatesApiTest : KoinTest {
 
     @Before
     fun before() {
-        startKoin{
+        startKoin {
             modules(ModulesConfig.modules)
         }
     }
@@ -34,7 +34,7 @@ class ExchangeRatesApiTest : KoinTest {
         val response: Response<ExchangeRatesApiResponse> = getCurrenciesData()!!
 
         assertTrue(response.isSuccessful)
-        assertEquals(200,response.code())
+        assertEquals(200, response.code())
         assertTrue(response.body()!!.rates.isNotEmpty())
     }
 
@@ -54,5 +54,4 @@ class ExchangeRatesApiTest : KoinTest {
             null
         }
     }
-
 }

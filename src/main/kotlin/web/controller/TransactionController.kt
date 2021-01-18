@@ -2,7 +2,11 @@ package web.controller
 
 import io.javalin.http.BadRequestResponse
 import io.javalin.http.Context
-import io.javalin.plugin.openapi.annotations.*
+import io.javalin.plugin.openapi.annotations.HttpMethod
+import io.javalin.plugin.openapi.annotations.OpenApi
+import io.javalin.plugin.openapi.annotations.OpenApiContent
+import io.javalin.plugin.openapi.annotations.OpenApiRequestBody
+import io.javalin.plugin.openapi.annotations.OpenApiResponse
 import model.Error
 import model.ExchangeRatesApiResponse
 import model.Transaction
@@ -17,12 +21,12 @@ import retrofit2.converter.jackson.JacksonConverterFactory
 import web.exception.InvalidTransaction
 import java.time.LocalDateTime
 
-class TransactionController(private val transactionRepository: TransactionRepository)  {
+class TransactionController(private val transactionRepository: TransactionRepository) {
     private companion object {
         val logger: Logger = LoggerFactory.getLogger(TransactionController::class.java)
     }
 
-    private val invalidTransaction : String = "Invalid transaction"
+    private val invalidTransaction: String = "Invalid transaction"
 
     @OpenApi(
         summary = "Create transaction",
@@ -62,15 +66,16 @@ class TransactionController(private val transactionRepository: TransactionReposi
 
             val rate = data.rates[transactionRequest.destinationCurrency]!!
             val destinationAmt = rate * transactionRequest.originAmount
-            val transaction = Transaction(transactionRequest.userId,0,
+            val transaction = Transaction(
+                transactionRequest.userId, 0,
                 transactionRequest.originCurrency,
                 transactionRequest.originAmount,
                 transactionRequest.destinationCurrency,
-                destinationAmt, rate, LocalDateTime.now())
+                destinationAmt, rate, LocalDateTime.now()
+            )
 
             ctx.json(transactionRepository.create(transaction))
             logger.info("Successful transaction")
-
         } catch (ex: BadRequestResponse) {
             logger.error(ex.toString())
             throw InvalidTransaction(
@@ -86,10 +91,11 @@ class TransactionController(private val transactionRepository: TransactionReposi
         tags = ["Transaction"],
         responses = [
             OpenApiResponse("200", [OpenApiContent(Transaction::class)]),
-            OpenApiResponse("400", [OpenApiContent(InvalidTransaction::class)])],
+            OpenApiResponse("400", [OpenApiContent(InvalidTransaction::class)])
+        ],
         method = HttpMethod.GET
     )
-    fun getOne(ctx: Context){
+    fun getOne(ctx: Context) {
         try {
             ctx.json(transactionRepository.getOne(ctx.pathParam("id").toLong()))
             logger.info("Transaction returned successfully")
@@ -112,7 +118,7 @@ class TransactionController(private val transactionRepository: TransactionReposi
         ],
         method = HttpMethod.GET
     )
-    fun getAll(ctx: Context){
+    fun getAll(ctx: Context) {
         try {
             ctx.json(transactionRepository.getAll())
             logger.info("Transactions list returned")
@@ -166,7 +172,8 @@ class TransactionController(private val transactionRepository: TransactionReposi
                 logger.error("Error")
                 val error = retrofit.responseBodyConverter<Error>(
                     Error::class.java,
-                    Error::class.java.annotations)
+                    Error::class.java.annotations
+                )
                     .convert(response.errorBody()!!)
                 error
             }
@@ -175,5 +182,4 @@ class TransactionController(private val transactionRepository: TransactionReposi
             null
         }
     }
-
 }

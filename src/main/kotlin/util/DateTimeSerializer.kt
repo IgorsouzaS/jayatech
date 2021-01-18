@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.SerializerProvider
 import java.text.SimpleDateFormat
 import java.time.LocalDateTime
 import java.time.ZoneId
-import java.util.*
+import java.util.Date
 
 class DateTimeSerializer : JsonSerializer<LocalDateTime>() {
     private val formatter = SimpleDateFormat("yyyy-MM-dd")
@@ -15,5 +15,4 @@ class DateTimeSerializer : JsonSerializer<LocalDateTime>() {
         val date: Date = Date.from(value.atZone(ZoneId.systemDefault()).toInstant())
         gen!!.writeString(formatter.format(date))
     }
-
 }

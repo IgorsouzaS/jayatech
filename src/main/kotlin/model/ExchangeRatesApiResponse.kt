@@ -2,7 +2,7 @@ package model
 
 import com.fasterxml.jackson.annotation.JsonFormat
 import com.fasterxml.jackson.annotation.JsonProperty
-import java.util.*
+import java.util.Date
 
 data class ExchangeRatesApiResponse(
     @JsonProperty("rates")

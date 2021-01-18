@@ -5,8 +5,16 @@ import io.javalin.http.BadRequestResponse
 import model.User
 import org.h2.jdbcx.JdbcDataSource
 import org.jetbrains.exposed.dao.LongIdTable
-import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.sql.Column
+import org.jetbrains.exposed.sql.Database
+import org.jetbrains.exposed.sql.ResultRow
+import org.jetbrains.exposed.sql.SchemaUtils
+import org.jetbrains.exposed.sql.deleteWhere
+import org.jetbrains.exposed.sql.insertAndGetId
+import org.jetbrains.exposed.sql.select
+import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.sql.update
 import org.slf4j.LoggerFactory
 
 object Users : LongIdTable("USERS") {
@@ -34,7 +42,6 @@ class UserRepository(db: DbConfig) : Repository<User> {
 
     private val logger = LoggerFactory.getLogger(UserRepository::class.java)
 
-
     override fun create(entity: User): User {
         val userExists: Boolean = transaction(Database.connect(dataSource)) {
             Users.select {
@@ -42,7 +49,7 @@ class UserRepository(db: DbConfig) : Repository<User> {
             }.toList().isNotEmpty()
         }
 
-        if(userExists){
+        if (userExists) {
             logger.error("This email is already being used")
             throw BadRequestResponse(message = "This email is already being used")
         }
@@ -95,11 +102,10 @@ class UserRepository(db: DbConfig) : Repository<User> {
         return getOne(userId)
     }
 
-    override fun delete(id: Long) : Int{
+    override fun delete(id: Long): Int {
         logger.info("user successfully deleted")
         return transaction(Database.connect(dataSource)) {
             Users.deleteWhere { Users.id eq id }
         }
     }
-
 }

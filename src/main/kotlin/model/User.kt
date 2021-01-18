@@ -2,7 +2,7 @@ package model
 
 import com.fasterxml.jackson.annotation.JsonProperty
 
-data class User (
+data class User(
     @JsonProperty("id")
     val id: Long,
 

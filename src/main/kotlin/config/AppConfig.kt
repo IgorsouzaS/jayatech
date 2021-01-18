@@ -11,9 +11,8 @@ import org.koin.core.context.startKoin
 import web.router.TransactionRouter
 import web.router.UserRouter
 import java.io.FileInputStream
-import java.util.*
-
-class AppConfig : KoinComponent{
+import java.util.Properties
+class AppConfig : KoinComponent {
 
     private val userRouter: UserRouter by inject()
     private val transactionRouter: TransactionRouter by inject()
@@ -49,7 +48,7 @@ class AppConfig : KoinComponent{
         }
     )
 
-    private fun getPort() : Int{
+    private fun getPort(): Int {
         val prop = Properties()
         val fis = FileInputStream("src/main/resources/application.properties")
         prop.load(fis)

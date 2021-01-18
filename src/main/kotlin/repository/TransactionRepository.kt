@@ -5,7 +5,16 @@ import io.javalin.http.BadRequestResponse
 import model.Transaction
 import org.h2.jdbcx.JdbcDataSource
 import org.jetbrains.exposed.dao.LongIdTable
-import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.sql.Column
+import org.jetbrains.exposed.sql.CurrentDateTime
+import org.jetbrains.exposed.sql.Database
+import org.jetbrains.exposed.sql.ResultRow
+import org.jetbrains.exposed.sql.SchemaUtils
+import org.jetbrains.exposed.sql.datetime
+import org.jetbrains.exposed.sql.deleteWhere
+import org.jetbrains.exposed.sql.insertAndGetId
+import org.jetbrains.exposed.sql.select
+import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.slf4j.LoggerFactory
 import java.time.LocalDateTime
@@ -33,7 +42,7 @@ object Transactions : LongIdTable("TRANSACTIONS") {
     }
 }
 
-class TransactionRepository(db: DbConfig) : Repository<Transaction>{
+class TransactionRepository(db: DbConfig) : Repository<Transaction> {
 
     private var dataSource: JdbcDataSource = db.getDataSource()
 
@@ -44,7 +53,6 @@ class TransactionRepository(db: DbConfig) : Repository<Transaction>{
     }
 
     private val logger = LoggerFactory.getLogger(TransactionRepository::class.java)
-
 
     override fun create(entity: Transaction): Transaction {
 
@@ -89,11 +97,10 @@ class TransactionRepository(db: DbConfig) : Repository<Transaction>{
         }!!
     }
 
-    override fun delete(id: Long) : Int {
+    override fun delete(id: Long): Int {
         logger.info("Transaction successfully deleted")
         return transaction(Database.connect(dataSource)) {
             Transactions.deleteWhere { Transactions.id eq id }
         }
     }
-
 }

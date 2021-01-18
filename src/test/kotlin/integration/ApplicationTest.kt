@@ -16,17 +16,19 @@ import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.jackson.JacksonConverterFactory
 import java.io.FileInputStream
-import java.util.*
+import java.util.Properties
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 class ApplicationTest {
 
-    private val baseUrl : String = "http://localhost:"+getPort()
+    private val baseUrl: String = "http://localhost:" + getPort()
     private var user = UserRequest("test", "test")
-    private var transaction : TransactionRequest = TransactionRequest(1,
-        "USD", 2.00, "CAD")
+    private var transaction: TransactionRequest = TransactionRequest(
+        1,
+        "USD", 2.00, "CAD"
+    )
     private lateinit var app: Javalin
 
     @Before
@@ -49,12 +51,12 @@ class ApplicationTest {
 
         val service = retrofit.create(IntegrationTest::class.java)
         val call = service.postUser(user)
-        val response : Response<User> = call.execute()
+        val response: Response<User> = call.execute()
 
         val newUser = response.body()
 
         assertEquals(user.email, newUser!!.email)
-        assertEquals(200,response.code())
+        assertEquals(200, response.code())
     }
 
     @Test
@@ -68,7 +70,7 @@ class ApplicationTest {
         val call = service.postTransaction(transaction)
 
         val response: Response<Transaction> = call.execute()
-        assertEquals(200,response.code())
+        assertEquals(200, response.code())
     }
 
     @Test
@@ -83,11 +85,11 @@ class ApplicationTest {
 
         val response: Response<List<Transaction>> = call.execute()
 
-        assertEquals(200,response.code())
+        assertEquals(200, response.code())
         assertTrue(response.body()!!.isNotEmpty())
     }
 
-    private fun getPort() : Int{
+    private fun getPort(): Int {
         val prop = Properties()
         val fis = FileInputStream("src/main/resources/application.properties")
         prop.load(fis)

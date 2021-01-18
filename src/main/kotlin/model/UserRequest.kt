@@ -2,7 +2,7 @@ package model
 
 import com.fasterxml.jackson.annotation.JsonProperty
 
-data class UserRequest (
+data class UserRequest(
     @JsonProperty("name")
     val name: String,
 
